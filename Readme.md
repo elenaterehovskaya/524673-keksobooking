@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Елена Тереховская](https://up.htmlacademy.ru/javascript/20/user/524673).
-* Наставник: `Неизвестно`.
+* Наставник: Лариса Клец.
 
 ---
 
