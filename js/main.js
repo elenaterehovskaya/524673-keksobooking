@@ -44,8 +44,8 @@ var getRandomItem = function (array) {
 var advertsData = [];
 
 for (var i = 0; i < 8; i++) {
-  var xi = getRandomNumber(0, map.offsetWidth);
-  var yi = getRandomNumber(130, 630);
+  var xi = getRandomNumber(0, map.offsetWidth - PIN_WIDTH);
+  var yi = getRandomNumber(130, 630 - PIN_HEIGHT);
   var advertData = {
     author: {
       avatar: 'img/avatars/user0' + (i + 1) + '.png'
