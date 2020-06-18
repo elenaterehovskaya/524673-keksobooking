@@ -258,9 +258,6 @@ var numGuests = form.querySelector('#capacity'); // количество гос�
 var userRooms = parseInt(numRooms.value, 10); // число комнат, выбранных пользователем
 var userGuests = parseInt(numGuests.value, 10); // число гостей, выбранных пользователем
 
-numRooms.setCustomValidity('');
-numGuests.setCustomValidity('');
-
 /**
  * Проверяет соответствие количества комнат с количеством размещаемых в них гостей (спальных мест)
  * @param {number} guests число гостей
@@ -314,6 +311,9 @@ var checkGuests = function (rooms) {
     }
   }
 };
+
+numRooms.setCustomValidity('');
+numGuests.setCustomValidity('');
 
 numRooms.addEventListener('change', function () {
   checkRooms(userGuests);
