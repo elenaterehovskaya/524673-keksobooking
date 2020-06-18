@@ -255,41 +255,14 @@ mapPinMain.addEventListener('keydown', function (evt) {
 
 var numRooms = form.querySelector('#room_number'); // количество комнат
 var numGuests = form.querySelector('#capacity'); // количество гостей (спальных мест)
-var userRooms = parseInt(numRooms.value, 10); // число комнат, выбранных пользователем
-var userGuests = parseInt(numGuests.value, 10); // число гостей, выбранных пользователем
-
-/**
- * Проверяет соответствие количества комнат с количеством размещаемых в них гостей (спальных мест)
- * @param {number} guests число гостей
- */
-var checkRooms = function (guests) {
-  if (guests === 3) {
-    if (userRooms !== 1) {
-      numRooms.setCustomValidity('Число комнат для трёх гостей может быть только 3');
-    }
-  }
-  if (guests === 2) {
-    if (userRooms !== 2 && userRooms !== 3) {
-      numRooms.setCustomValidity('Чило комнат для двух гостей может быть 3 или 2');
-    }
-  }
-  if (guests === 1) {
-    if (userRooms !== 1 && userRooms !== 2 && userRooms !== 3) {
-      numRooms.setCustomValidity('Чило комнат для одного гостя может быть 3, 2 или 1');
-    }
-  }
-  if (guests === 0) {
-    if (userRooms !== 100) {
-      numRooms.setCustomValidity('100 комнат — не для гостей');
-    }
-  }
-};
 
 /**
  * Проверяет соответствие количества гостей (спальных мест) с количеством комнат
  * @param {number} rooms число комнат
  */
 var checkGuests = function (rooms) {
+  var userGuests = parseInt(numGuests.value, 10);
+  numGuests.setCustomValidity('');
   if (rooms === 1) {
     if (userGuests !== 1) {
       numGuests.setCustomValidity('Число гостей в одной комнате может быть только 1');
@@ -312,13 +285,10 @@ var checkGuests = function (rooms) {
   }
 };
 
-numRooms.setCustomValidity('');
-numGuests.setCustomValidity('');
-
-numRooms.addEventListener('change', function () {
-  checkRooms(userGuests);
+numGuests.addEventListener('change', function () {
+  checkGuests(parseInt(numRooms.value, 10));
 });
 
-numGuests.addEventListener('change', function () {
-  checkGuests(userRooms);
+numRooms.addEventListener('change', function () {
+  checkGuests(parseInt(numRooms.value, 10));
 });
