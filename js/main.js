@@ -17,9 +17,9 @@ var OBJECT_FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'c
 var OBJECT_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 var PIN_WIDTH = 50;
 var PIN_HEIGHT = 70;
-
-var map = document.querySelector('.map');
-map.classList.remove('map--faded');
+var PIN_MAIN_WIDTH = 65;
+var PIN_MAIN_HEIGHT = 65;
+var PIN_MAIN_ACTIVE_HEIGHT = 87;
 
 /**
  * Получает случайное число из диапазона
@@ -56,6 +56,7 @@ var getRandomArray = function (array, n) {
   return resultArray;
 };
 
+var map = document.querySelector('.map');
 var advertsData = [];
 
 for (var i = 0; i < 8; i++) {
@@ -89,7 +90,7 @@ for (var i = 0; i < 8; i++) {
 
 var pinList = document.querySelector('.map__pins');
 var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
-var cardTemplate = document.querySelector('#card').content.querySelector('.map__card');
+// var cardTemplate = document.querySelector('#card').content.querySelector('.map__card');
 
 /**
  * Создаёт метку на карте и заполняет её данными из объекта
@@ -106,20 +107,13 @@ var renderPin = function (pinData) {
   return pinElement;
 };
 
-var fragment = document.createDocumentFragment();
-
-for (var j = 0; j < advertsData.length; j++) {
-  fragment.appendChild(renderPin(advertsData[j]));
-}
-
-pinList.appendChild(fragment);
-
-/**
- * Создаёт карточку объявления и заполняет её данными из объекта
- * @param {Array} cardData объекта с данными
- * @return {Node} cardElement DOM-элемент на основе JS-объекта
- */
-var renderCard = function (cardData) {
+// /**
+//  * Создаёт карточку объявления и заполняет её данными из объекта
+//  * @param {Array} cardData объекта с данными
+//  * @return {Node} cardElement DOM-элемент на основе JS-объекта
+//  */
+/*
+  var renderCard = function (cardData) {
   var cardElement = cardTemplate.cloneNode(true);
 
   cardElement.querySelector('.popup__avatar').src = cardData.author.avatar;
@@ -194,3 +188,137 @@ var renderCard = function (cardData) {
 };
 
 map.insertBefore(renderCard(advertsData[0]), map.querySelector('.map__filters-container'));
+*/
+
+var mapPinMain = map.querySelector('.map__pin--main'); // Метка, являющаяся контролом указания адреса объявления
+var mapFilters = document.querySelector('.map__filters'); // Форма с фильтрами
+var mapFilterList = mapFilters.querySelectorAll('select'); // Список фильтров
+var form = document.querySelector('.ad-form'); // Форма подачи заявления
+var formElementList = form.querySelectorAll('fieldset'); // Список элементов формы подачи заявления
+var formAddress = form.querySelector('[name=address]'); // Поле адреса
+
+/**
+ * Выключает активный режим (страница находится в неактивном состоянии: отключены форма и карта)
+ */
+var offActiveMode = function () {
+  for (var k = 0; k < mapFilterList.length; k++) {
+    mapFilterList[k].disabled = true;
+  }
+
+  for (var m = 0; m < formElementList.length; m++) {
+    formElementList[m].disabled = true;
+  }
+
+  formAddress.value = Math.floor(mapPinMain.offsetLeft + 0.5 * PIN_MAIN_WIDTH) + ', ' + Math.floor(mapPinMain.offsetTop + 0.5 * PIN_MAIN_HEIGHT);
+};
+
+offActiveMode();
+
+/**
+ * Включает активный режим (страница находится в активном состоянии: позволяет вносить изменения в форму и отправлять её на сервер,
+ * просматривать похожие объявления на карте, фильтровать их и уточнять подробную информацию о них, показывая для каждого из объявлений карточку)
+ */
+var onActiveMode = function () {
+  map.classList.remove('map--faded');
+  form.classList.remove('ad-form--disabled');
+
+  for (var n = 0; n < mapFilterList.length; n++) {
+    mapFilterList[n].disabled = false;
+  }
+
+  for (var p = 0; p < formElementList.length; p++) {
+    formElementList[p].disabled = false;
+  }
+
+  formAddress.value = Math.floor(mapPinMain.offsetLeft + 0.5 * PIN_MAIN_WIDTH) + ', ' + Math.floor(mapPinMain.offsetTop + PIN_MAIN_ACTIVE_HEIGHT);
+
+  var fragment = document.createDocumentFragment();
+
+  for (var j = 0; j < advertsData.length; j++) {
+    fragment.appendChild(renderPin(advertsData[j]));
+  }
+
+  pinList.appendChild(fragment);
+};
+
+mapPinMain.addEventListener('mousedown', function (evt) {
+  if (evt.button === 0) {
+    onActiveMode();
+  }
+});
+
+mapPinMain.addEventListener('keydown', function (evt) {
+  if (evt.key === 'Enter') {
+    onActiveMode();
+  }
+});
+
+var numRooms = form.querySelector('#room_number'); // количество комнат
+var numGuests = form.querySelector('#capacity'); // количество гостей (спальных мест)
+var userRooms = parseInt(numRooms.value, 10); // число комнат, выбранных пользователем
+var userGuests = parseInt(numGuests.value, 10); // число гостей, выбранных пользователем
+
+numRooms.setCustomValidity('');
+numGuests.setCustomValidity('');
+
+/**
+ * Проверяет соответствие количества комнат с количеством размещаемых в них гостей (спальных мест)
+ * @param {number} guests число гостей
+ */
+var checkRooms = function (guests) {
+  if (guests === 3) {
+    if (userRooms !== 1) {
+      numRooms.setCustomValidity('Число комнат для трёх гостей может быть только 3');
+    }
+  }
+  if (guests === 2) {
+    if (userRooms !== 2 && userRooms !== 3) {
+      numRooms.setCustomValidity('Чило комнат для двух гостей может быть 3 или 2');
+    }
+  }
+  if (guests === 1) {
+    if (userRooms !== 1 && userRooms !== 2 && userRooms !== 3) {
+      numRooms.setCustomValidity('Чило комнат для одного гостя может быть 3, 2 или 1');
+    }
+  }
+  if (guests === 0) {
+    if (userRooms !== 100) {
+      numRooms.setCustomValidity('100 комнат — не для гостей');
+    }
+  }
+};
+
+/**
+ * Проверяет соответствие количества гостей (спальных мест) с количеством комнат
+ * @param {number} rooms число комнат
+ */
+var checkGuests = function (rooms) {
+  if (rooms === 1) {
+    if (userGuests !== 1) {
+      numGuests.setCustomValidity('Число гостей в одной комнате может быть только 1');
+    }
+  }
+  if (rooms === 2) {
+    if (userGuests !== 1 && userGuests !== 2) {
+      numGuests.setCustomValidity('Число гостей в двух комнатах может быть 2 или 1');
+    }
+  }
+  if (rooms === 3) {
+    if (userGuests !== 1 && userGuests !== 2 && userGuests !== 3) {
+      numGuests.setCustomValidity('Число гостей в трёх комнатах может быть 3, 2 или 1');
+    }
+  }
+  if (rooms === 100) {
+    if (userGuests !== 0) {
+      numGuests.setCustomValidity('100 комнат — не для гостей');
+    }
+  }
+};
+
+numRooms.addEventListener('change', function () {
+  checkRooms(userGuests);
+});
+
+numGuests.addEventListener('change', function () {
+  checkGuests(userRooms);
+});
