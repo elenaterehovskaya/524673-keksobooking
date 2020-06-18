@@ -17,9 +17,9 @@ var OBJECT_FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'c
 var OBJECT_PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.github.io/assets/images/tokyo/hotel2.jpg', 'http://o0.github.io/assets/images/tokyo/hotel3.jpg'];
 var PIN_WIDTH = 50;
 var PIN_HEIGHT = 70;
-
-var map = document.querySelector('.map');
-map.classList.remove('map--faded');
+var PIN_MAIN_WIDTH = 65;
+var PIN_MAIN_HEIGHT = 65;
+var PIN_MAIN_ACTIVE_HEIGHT = 87;
 
 /**
  * Получает случайное число из диапазона
@@ -56,6 +56,7 @@ var getRandomArray = function (array, n) {
   return resultArray;
 };
 
+var map = document.querySelector('.map');
 var advertsData = [];
 
 for (var i = 0; i < 8; i++) {
@@ -70,8 +71,8 @@ for (var i = 0; i < 8; i++) {
       address: xi + ', ' + yi,
       price: getRandomNumber(2000, 10000),
       type: getRandomItem(OBJECT_TYPES),
-      rooms: getRandomNumber(1, 4),
-      guests: getRandomNumber(0, 10),
+      rooms: getRandomNumber(1, 10),
+      guests: getRandomNumber(1, 10),
       checkin: getRandomItem(OBJECT_TIMES),
       checkout: getRandomItem(OBJECT_TIMES),
       features: getRandomArray(OBJECT_FEATURES, getRandomNumber(1, OBJECT_FEATURES.length)),
@@ -89,7 +90,7 @@ for (var i = 0; i < 8; i++) {
 
 var pinList = document.querySelector('.map__pins');
 var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
-var cardTemplate = document.querySelector('#card').content.querySelector('.map__card');
+// var cardTemplate = document.querySelector('#card').content.querySelector('.map__card');
 
 /**
  * Создаёт метку на карте и заполняет её данными из объекта
@@ -106,20 +107,13 @@ var renderPin = function (pinData) {
   return pinElement;
 };
 
-var fragment = document.createDocumentFragment();
-
-for (var j = 0; j < advertsData.length; j++) {
-  fragment.appendChild(renderPin(advertsData[j]));
-}
-
-pinList.appendChild(fragment);
-
-/**
- * Создаёт карточку объявления и заполняет её данными из объекта
- * @param {Array} cardData объекта с данными
- * @return {Node} cardElement DOM-элемент на основе JS-объекта
- */
-var renderCard = function (cardData) {
+// /**
+//  * Создаёт карточку объявления и заполняет её данными из объекта
+//  * @param {Array} cardData объекта с данными
+//  * @return {Node} cardElement DOM-элемент на основе JS-объекта
+//  */
+/*
+  var renderCard = function (cardData) {
   var cardElement = cardTemplate.cloneNode(true);
 
   cardElement.querySelector('.popup__avatar').src = cardData.author.avatar;
@@ -143,7 +137,33 @@ var renderCard = function (cardData) {
     cardElement.querySelector('.popup__type').textContent = 'Дворец';
   }
 
-  cardElement.querySelector('.popup__text--capacity').textContent = cardData.offer.rooms + ' комнаты для ' + cardData.offer.guests + ' гостей';
+  if (cardData.offer.rooms === 1) {
+    if (cardData.offer.guests === 1) {
+      cardElement.querySelector('.popup__text--capacity').textContent = cardData.offer.rooms + ' комната для ' + cardData.offer.guests + ' гостя';
+    }
+    if (cardData.offer.guests === 0 && cardData.offer.guests >= 2 && cardData.offer.guests <= 10) {
+      cardElement.querySelector('.popup__text--capacity').textContent = cardData.offer.rooms + ' комната для ' + cardData.offer.guests + ' гостей';
+    }
+  }
+
+  if (cardData.offer.rooms >= 2 && cardData.offer.rooms <= 4) {
+    if (cardData.offer.guests === 1) {
+      cardElement.querySelector('.popup__text--capacity').textContent = cardData.offer.rooms + ' комнаты для ' + cardData.offer.guests + ' гостя';
+    }
+    if (cardData.offer.guests >= 2 && cardData.offer.guests <= 10) {
+      cardElement.querySelector('.popup__text--capacity').textContent = cardData.offer.rooms + ' комнаты для ' + cardData.offer.guests + ' гостей';
+    }
+  }
+
+  if (cardData.offer.rooms >= 5 && cardData.offer.rooms <= 10) {
+    if (cardData.offer.guests === 1) {
+      cardElement.querySelector('.popup__text--capacity').textContent = cardData.offer.rooms + ' комнат для ' + cardData.offer.guests + ' гостя';
+    }
+    if (cardData.offer.guests >= 2 && cardData.offer.guests <= 10) {
+      cardElement.querySelector('.popup__text--capacity').textContent = cardData.offer.rooms + ' комнат для ' + cardData.offer.guests + ' гостей';
+    }
+  }
+
   cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + cardData.offer.checkin + ', выезд до ' + cardData.offer.checkout;
 
   var listFeatures = cardElement.querySelector('.popup__features').querySelectorAll('li');
@@ -155,17 +175,120 @@ var renderCard = function (cardData) {
   cardElement.querySelector('.popup__description').textContent = cardData.offer.description;
   cardElement.querySelector('.popup__photos').querySelector('img').src = cardData.offer.photos[0];
 
-  for (var l = 1; l < cardData.offer.photos.length; l++) {
+  for (var m = 1; m < cardData.offer.photos.length; m++) {
     var newPhoto = document.createElement('img');
     newPhoto.className = 'popup__photo';
-    newPhoto.src = cardData.offer.photos[l];
+    newPhoto.src = cardData.offer.photos[m];
     newPhoto.width = 45;
     newPhoto.height = 40;
-    newPhoto.alt = 'Фотография жилья' + l;
+    newPhoto.alt = 'Фотография жилья' + m;
     cardElement.querySelector('.popup__photos').append(newPhoto);
   }
   return cardElement;
 };
 
-fragment.appendChild(renderCard(advertsData[0]));
-map.insertBefore(fragment, map.querySelector('.map__filters-container'));
+map.insertBefore(renderCard(advertsData[0]), map.querySelector('.map__filters-container'));
+*/
+
+var mapPinMain = map.querySelector('.map__pin--main'); // Метка, являющаяся контролом указания адреса объявления
+var mapFilters = document.querySelector('.map__filters'); // Форма с фильтрами
+var mapFilterList = mapFilters.querySelectorAll('select'); // Список фильтров
+var form = document.querySelector('.ad-form'); // Форма подачи заявления
+var formElementList = form.querySelectorAll('fieldset'); // Список элементов формы подачи заявления
+var formAddress = form.querySelector('[name=address]'); // Поле адреса
+
+/**
+ * Выключает активный режим (страница находится в неактивном состоянии: отключены форма и карта)
+ */
+var offActiveMode = function () {
+  for (var k = 0; k < mapFilterList.length; k++) {
+    mapFilterList[k].disabled = true;
+  }
+
+  for (var m = 0; m < formElementList.length; m++) {
+    formElementList[m].disabled = true;
+  }
+
+  formAddress.value = Math.floor(mapPinMain.offsetLeft + 0.5 * PIN_MAIN_WIDTH) + ', ' + Math.floor(mapPinMain.offsetTop + 0.5 * PIN_MAIN_HEIGHT);
+};
+
+offActiveMode();
+
+/**
+ * Включает активный режим (страница находится в активном состоянии: позволяет вносить изменения в форму и отправлять её на сервер,
+ * просматривать похожие объявления на карте, фильтровать их и уточнять подробную информацию о них, показывая для каждого из объявлений карточку)
+ */
+var onActiveMode = function () {
+  map.classList.remove('map--faded');
+  form.classList.remove('ad-form--disabled');
+
+  for (var n = 0; n < mapFilterList.length; n++) {
+    mapFilterList[n].disabled = false;
+  }
+
+  for (var p = 0; p < formElementList.length; p++) {
+    formElementList[p].disabled = false;
+  }
+
+  formAddress.value = Math.floor(mapPinMain.offsetLeft + 0.5 * PIN_MAIN_WIDTH) + ', ' + Math.floor(mapPinMain.offsetTop + PIN_MAIN_ACTIVE_HEIGHT);
+
+  var fragment = document.createDocumentFragment();
+
+  for (var j = 0; j < advertsData.length; j++) {
+    fragment.appendChild(renderPin(advertsData[j]));
+  }
+
+  pinList.appendChild(fragment);
+};
+
+mapPinMain.addEventListener('mousedown', function (evt) {
+  if (evt.button === 0) {
+    onActiveMode();
+  }
+});
+
+mapPinMain.addEventListener('keydown', function (evt) {
+  if (evt.key === 'Enter') {
+    onActiveMode();
+  }
+});
+
+var numRooms = form.querySelector('#room_number'); // количество комнат
+var numGuests = form.querySelector('#capacity'); // количество гостей (спальных мест)
+
+/**
+ * Проверяет соответствие количества гостей (спальных мест) с количеством комнат
+ * @param {number} rooms число комнат
+ */
+var checkGuests = function (rooms) {
+  var userGuests = parseInt(numGuests.value, 10);
+  numGuests.setCustomValidity('');
+  if (rooms === 1) {
+    if (userGuests !== 1) {
+      numGuests.setCustomValidity('Число гостей в одной комнате может быть только 1');
+    }
+  }
+  if (rooms === 2) {
+    if (userGuests !== 1 && userGuests !== 2) {
+      numGuests.setCustomValidity('Число гостей в двух комнатах может быть 2 или 1');
+    }
+  }
+  if (rooms === 3) {
+    if (userGuests !== 1 && userGuests !== 2 && userGuests !== 3) {
+      numGuests.setCustomValidity('Число гостей в трёх комнатах может быть 3, 2 или 1');
+    }
+  }
+  if (rooms === 100) {
+    if (userGuests !== 0) {
+      numGuests.setCustomValidity('100 комнат — не для гостей');
+    }
+  }
+};
+
+numGuests.addEventListener('change', function () {
+  checkGuests(parseInt(numRooms.value, 10));
+});
+
+numRooms.addEventListener('change', function () {
+  checkGuests(parseInt(numRooms.value, 10));
+});
