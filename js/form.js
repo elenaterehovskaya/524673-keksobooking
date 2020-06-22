@@ -6,8 +6,6 @@
   var address = form.querySelector('#address'); // поле адреса
   var rooms = form.querySelector('#room_number'); // поле количества комнат
   var guests = form.querySelector('#capacity'); // поле количества гостей (спальных мест)
-  var numRooms = rooms.querySelectorAll('option'); // число выбранных комнат
-  var numGuests = guests.querySelectorAll('option'); // число выбранных гостей
 
   /**
    * Проверяет соответствие количества гостей (спальных мест) с количеством комнат
@@ -49,7 +47,7 @@
     form: form,
     elementList: elementList,
     address: address,
-    numRooms: numRooms,
-    numGuests: numGuests
+    rooms: rooms,
+    guests: guests
   };
 })();

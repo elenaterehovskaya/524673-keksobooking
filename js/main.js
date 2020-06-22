@@ -1,19 +1,26 @@
 'use strict';
 
 (function () {
+  var LEFT_BUTTON = 0;
+  var form = window.form;
+  var map = window.map;
   /**
  * Выключает активный режим, страница находится в неактивном состоянии: отключены форма и карта
  */
   var offActiveMode = function () {
-    for (var i = 0; i < window.map.filterList.length; i++) {
-      window.map.filterList[i].disabled = true;
+    for (var i = 0; i < map.filterList.length; i++) {
+      map.filterList[i].disabled = true;
     }
 
-    for (var j = 0; j < window.form.elementList.length; j++) {
-      window.form.elementList[j].disabled = true;
+    for (var j = 0; j < form.elementList.length; j++) {
+      form.elementList[j].disabled = true;
     }
 
-    window.form.address.value = Math.floor(window.map.pinMain.offsetLeft + 0.5 * window.map.PIN_MAIN_WIDTH) + ', ' + Math.floor(window.map.pinMain.offsetTop + 0.5 * window.map.PIN_MAIN_HEIGHT);
+    form.address.value = Math.floor(map.pinMain.offsetLeft + 0.5 * map.PIN_MAIN_WIDTH) + ', ' + Math.floor(map.pinMain.offsetTop + 0.5 * map.PIN_MAIN_HEIGHT);
+    form.rooms.value = '1';
+    form.rooms.selectedIndex = 0;
+    form.guests.value = '3';
+    form.guests.selectedIndex = 0;
   };
 
   offActiveMode();
@@ -22,47 +29,71 @@
  * Включает активный режим, страница находится в активном состоянии: включены форма и карта
  */
   var onActiveMode = function () {
-    window.map.map.classList.remove('map--faded');
-    window.form.form.classList.remove('ad-form--disabled');
+    map.map.classList.remove('map--faded');
+    form.form.classList.remove('ad-form--disabled');
 
-    for (var i = 0; i < window.map.filterList.length; i++) {
-      window.map.filterList[i].disabled = false;
+    for (var i = 0; i < map.filterList.length; i++) {
+      map.filterList[i].disabled = false;
     }
 
-    for (var j = 0; j < window.form.elementList.length; j++) {
-      window.form.elementList[j].disabled = false;
+    for (var j = 0; j < form.elementList.length; j++) {
+      form.elementList[j].disabled = false;
     }
 
-    window.form.address.value = Math.floor(window.map.pinMain.offsetLeft + 0.5 * window.map.PIN_MAIN_WIDTH) + ', ' + Math.floor(window.map.pinMain.offsetTop + window.map.PIN_MAIN_ACTIVE_HEIGHT);
+    form.address.value = Math.floor(map.pinMain.offsetLeft + 0.5 * map.PIN_MAIN_WIDTH) + ', ' + Math.floor(map.pinMain.offsetTop + map.PIN_MAIN_ACTIVE_HEIGHT);
+    form.rooms.value = '1';
+    form.rooms.selectedIndex = 0;
+    form.guests.value = '1';
+    form.guests.selectedIndex = 2;
 
-    for (var n = 0; n < window.form.numRooms.length; n++) {
-      if (window.form.numRooms[n].value === '1') {
-        window.form.numRooms[n].selected = true;
+    /**
+     * Обработчик успешной загрузки данных с сервера
+     * @param {Object} advertsData данные (список похожих объявлений), полученные с сервера
+     */
+    var successHandler = function (advertsData) {
+      var fragment = document.createDocumentFragment();
+
+      for (var k = 0; k < advertsData.length; k++) {
+        if (advertsData.offer !== '') {
+          fragment.appendChild(window.pin.renderPin(advertsData[k]));
+        }
       }
-    }
+      map.pinList.appendChild(fragment);
+    };
 
-    for (var m = 0; m < window.form.numGuests.length; m++) {
-      if (window.form.numGuests[m].value === '1') {
-        window.form.numGuests[m].selected = true;
-      }
-    }
+    /**
+     * Обработчик ошибки, произошедшей при получении данных с сервера
+     * @param {string} errorMessage текст сообщения
+     */
+    var errorHandler = function (errorMessage) {
+      var node = document.createElement('div');
+      node.style.zIndex = 100;
+      node.style.position = 'absolute';
+      node.style.top = '25%';
+      node.style.left = 0;
+      node.style.right = 0;
+      node.style.width = '300px';
+      node.style.margin = '0 auto';
+      node.style.padding = '25px 50px';
+      node.style.fontSize = '21px';
+      node.style.textAlign = 'center';
+      node.style.color = '#ff5635';
+      node.style.backgroundColor = 'white';
+      node.style.boxShadow = '0 0 2px 2px #ff6547';
+      node.textContent = errorMessage;
+      document.body.insertAdjacentElement('afterbegin', node);
+    };
 
-    var fragment = document.createDocumentFragment();
-
-    for (var k = 0; k < window.data.advertsData.length; k++) {
-      fragment.appendChild(window.pin.renderPin(window.data.advertsData[k]));
-    }
-
-    window.map.pinList.appendChild(fragment);
+    window.load(successHandler, errorHandler);
   };
 
-  window.map.pinMain.addEventListener('mousedown', function (evt) {
-    if (evt.button === 0) {
+  map.pinMain.addEventListener('mousedown', function (evt) {
+    if (evt.button === LEFT_BUTTON) {
       onActiveMode();
     }
   });
 
-  window.map.pinMain.addEventListener('keydown', function (evt) {
+  map.pinMain.addEventListener('keydown', function (evt) {
     if (evt.key === 'Enter') {
       onActiveMode();
     }
