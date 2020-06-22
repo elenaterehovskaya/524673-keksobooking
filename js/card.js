@@ -15,23 +15,20 @@
     cardElement.querySelector('.popup__title').textContent = cardData.offer.title;
     cardElement.querySelector('.popup__text--address').textContent = cardData.offer.address;
     cardElement.querySelector('.popup__text--price').textContent = cardData.offer.price + ' ₽/ночь';
-
-    if (cardData.offer.type === 'flat') {
-      cardElement.querySelector('.popup__type').textContent = 'Квартира';
+    switch (cardData.offer.type) {
+      case 'flat':
+        cardElement.querySelector('.popup__type').textContent = 'Квартира';
+        break;
+      case 'bungalo':
+        cardElement.querySelector('.popup__type').textContent = 'Бунгало';
+        break;
+      case 'house':
+        cardElement.querySelector('.popup__type').textContent = 'Дом';
+        break;
+      case 'palace':
+        cardElement.querySelector('.popup__type').textContent = 'Дворец';
+        break;
     }
-
-    if (cardData.offer.type === 'bungalo') {
-      cardElement.querySelector('.popup__type').textContent = 'Бунгало';
-    }
-
-    if (cardData.offer.type === 'house') {
-      cardElement.querySelector('.popup__type').textContent = 'Дом';
-    }
-
-    if (cardData.offer.type === 'palace') {
-      cardElement.querySelector('.popup__type').textContent = 'Дворец';
-    }
-
     if (cardData.offer.rooms === 1) {
       if (cardData.offer.guests === 1) {
         cardElement.querySelector('.popup__text--capacity').textContent = cardData.offer.rooms + ' комната для ' + cardData.offer.guests + ' гостя';
