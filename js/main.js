@@ -14,6 +14,10 @@
     }
 
     window.form.address.value = Math.floor(window.map.pinMain.offsetLeft + 0.5 * window.map.PIN_MAIN_WIDTH) + ', ' + Math.floor(window.map.pinMain.offsetTop + 0.5 * window.map.PIN_MAIN_HEIGHT);
+    window.form.rooms.value = '1';
+    window.form.rooms.selectedIndex = 0;
+    window.form.guests.value = '3';
+    window.form.guests.selectedIndex = 0;
   };
 
   offActiveMode();
@@ -34,26 +38,43 @@
     }
 
     window.form.address.value = Math.floor(window.map.pinMain.offsetLeft + 0.5 * window.map.PIN_MAIN_WIDTH) + ', ' + Math.floor(window.map.pinMain.offsetTop + window.map.PIN_MAIN_ACTIVE_HEIGHT);
+    window.form.rooms.value = '1';
+    window.form.rooms.selectedIndex = 0;
+    window.form.guests.value = '1';
+    window.form.guests.selectedIndex = 2;
 
-    for (var n = 0; n < window.form.numRooms.length; n++) {
-      if (window.form.numRooms[n].value === '1') {
-        window.form.numRooms[n].selected = true;
+    /**
+     * Обработчик успешной загрузки данных с сервера
+     * @param {Object} advertsData данные (список похожих объявлений), полученные с сервера
+     */
+    var successHandler = function (advertsData) {
+      var fragment = document.createDocumentFragment();
+
+      for (var k = 0; k < advertsData.length; k++) {
+        if (advertsData.offer !== '') {
+          fragment.appendChild(window.pin.renderPin(advertsData[k]));
+        }
       }
-    }
+      window.map.pinList.appendChild(fragment);
+    };
 
-    for (var m = 0; m < window.form.numGuests.length; m++) {
-      if (window.form.numGuests[m].value === '1') {
-        window.form.numGuests[m].selected = true;
-      }
-    }
+    /**
+     * Обработчик ошибки, произошедшей при получении данных с сервера
+     * @param {string} errorMessage текст сообщения
+     */
+    var errorHandler = function (errorMessage) {
+      var node = document.createElement('div');
+      node.style = 'z-index: 100; margin: 0 auto; width: 300px; padding: 25px 50px; text-align: center; color: #ff5635; background-color: white; box-shadow: 0 0 2px 2px #ff6547';
+      node.style.position = 'absolute';
+      node.style.top = '25%';
+      node.style.left = 0;
+      node.style.right = 0;
+      node.style.fontSize = '21px';
+      node.textContent = errorMessage;
+      document.body.insertAdjacentElement('afterbegin', node);
+    };
 
-    var fragment = document.createDocumentFragment();
-
-    for (var k = 0; k < window.data.advertsData.length; k++) {
-      fragment.appendChild(window.pin.renderPin(window.data.advertsData[k]));
-    }
-
-    window.map.pinList.appendChild(fragment);
+    window.load(successHandler, errorHandler);
   };
 
   window.map.pinMain.addEventListener('mousedown', function (evt) {
