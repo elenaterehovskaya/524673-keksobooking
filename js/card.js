@@ -8,7 +8,7 @@
    * @param {Array} cardData объекта с данными
    * @return {Node} cardElement DOM-элемент на основе JS-объекта
    */
-  var renderCard = function (cardData) {
+  window.renderCard = function (cardData) {
     var cardElement = cardTemplate.cloneNode(true);
 
     cardElement.querySelector('.popup__avatar').src = cardData.author.avatar;
@@ -78,6 +78,4 @@
     }
     return cardElement;
   };
-
-  window.map.map.insertBefore(renderCard(window.data.advertsData[0]), window.map.map.querySelector('.map__filters-container'));
 })();

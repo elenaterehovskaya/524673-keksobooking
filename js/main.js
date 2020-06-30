@@ -2,21 +2,31 @@
 
 (function () {
   var LEFT_BUTTON = 0;
+  var PIN_MAIN_WIDTH = 65;
+  var PIN_MAIN_HEIGHT = 65;
+  var PIN_MAIN_ACTIVE_HEIGHT = 87;
+  var map = document.querySelector('.map');
+  var pinMain = map.querySelector('.map__pin--main'); // метка, являющаяся контролом указания адреса объявления
+  var filters = document.querySelector('.map__filters'); // форма с фильтрами
+  var filterList = filters.querySelectorAll('select'); // список фильтров
+  var houseTypeField = document.querySelector('#housing-type'); // фильтр: тип жилья
+
   var form = window.form;
-  var map = window.map;
+  var advertsData = [];
+
   /**
  * Выключает активный режим, страница находится в неактивном состоянии: отключены форма и карта
  */
   var offActiveMode = function () {
-    for (var i = 0; i < map.filterList.length; i++) {
-      map.filterList[i].disabled = true;
-    }
+    filterList.forEach(function (filter) {
+      filter.disabled = true;
+    });
 
-    for (var j = 0; j < form.elementList.length; j++) {
-      form.elementList[j].disabled = true;
-    }
+    form.elementList.forEach(function (element) {
+      element.disabled = true;
+    });
 
-    form.address.value = Math.floor(map.pinMain.offsetLeft + 0.5 * map.PIN_MAIN_WIDTH) + ', ' + Math.floor(map.pinMain.offsetTop + 0.5 * map.PIN_MAIN_HEIGHT);
+    form.address.value = Math.floor(pinMain.offsetLeft + 0.5 * PIN_MAIN_WIDTH) + ', ' + Math.floor(pinMain.offsetTop + 0.5 * PIN_MAIN_HEIGHT);
     form.rooms.value = '1';
     form.rooms.selectedIndex = 0;
     form.guests.value = '3';
@@ -29,18 +39,14 @@
  * Включает активный режим, страница находится в активном состоянии: включены форма и карта
  */
   var onActiveMode = function () {
-    map.map.classList.remove('map--faded');
+    map.classList.remove('map--faded');
     form.form.classList.remove('ad-form--disabled');
 
-    for (var i = 0; i < map.filterList.length; i++) {
-      map.filterList[i].disabled = false;
-    }
+    form.elementList.forEach(function (element) {
+      element.disabled = false;
+    });
 
-    for (var j = 0; j < form.elementList.length; j++) {
-      form.elementList[j].disabled = false;
-    }
-
-    form.address.value = Math.floor(map.pinMain.offsetLeft + 0.5 * map.PIN_MAIN_WIDTH) + ', ' + Math.floor(map.pinMain.offsetTop + map.PIN_MAIN_ACTIVE_HEIGHT);
+    form.address.value = Math.floor(pinMain.offsetLeft + 0.5 * PIN_MAIN_WIDTH) + ', ' + Math.floor(pinMain.offsetTop + PIN_MAIN_ACTIVE_HEIGHT);
     form.rooms.value = '1';
     form.rooms.selectedIndex = 0;
     form.guests.value = '1';
@@ -48,22 +54,21 @@
 
     /**
      * Обработчик успешной загрузки данных с сервера
-     * @param {Object} advertsData данные (список похожих объявлений), полученные с сервера
+     * @param {Object} data Данные объявлений, полученные с сервера
      */
-    var successHandler = function (advertsData) {
-      var fragment = document.createDocumentFragment();
+    var successHandler = function (data) {
+      advertsData = data;
+      window.renderPins(advertsData);
+      // map.insertBefore(window.renderCard(advertsData[0]), map.querySelector('.map__filters-container'));
 
-      for (var k = 0; k < advertsData.length; k++) {
-        if (advertsData.offer !== '') {
-          fragment.appendChild(window.pin.renderPin(advertsData[k]));
-        }
-      }
-      map.pinList.appendChild(fragment);
+      filterList.forEach(function (filter) {
+        filter.disabled = false;
+      });
     };
 
     /**
      * Обработчик ошибки, произошедшей при получении данных с сервера
-     * @param {string} errorMessage текст сообщения
+     * @param {string} errorMessage Текст сообщения
      */
     var errorHandler = function (errorMessage) {
       var node = document.createElement('div');
@@ -87,15 +92,35 @@
     window.load(successHandler, errorHandler);
   };
 
-  map.pinMain.addEventListener('mousedown', function (evt) {
+  pinMain.addEventListener('mousedown', function (evt) {
     if (evt.button === LEFT_BUTTON) {
       onActiveMode();
     }
   });
 
-  map.pinMain.addEventListener('keydown', function (evt) {
+  pinMain.addEventListener('keydown', function (evt) {
     if (evt.key === 'Enter') {
       onActiveMode();
+    }
+  });
+
+  houseTypeField.addEventListener('change', function () {
+    var pins = map.querySelectorAll('.map__pin:not(.map__pin--main)'); // метки с похожими объявлениями на карте
+
+    pins.forEach(function (pin) {
+      pin.remove();
+    });
+
+    var advertsSameHouseType = advertsData.filter(function (advert) {
+      return advert.offer.type === houseTypeField.value;
+    });
+
+    if (advertsSameHouseType !== []) {
+      window.renderPins(advertsSameHouseType);
+    }
+
+    if (houseTypeField.value === 'any') {
+      window.renderPins(advertsData);
     }
   });
 })();
