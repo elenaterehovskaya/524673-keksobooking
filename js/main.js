@@ -4,9 +4,11 @@
   var LEFT_BUTTON = 0;
   var PIN_MAIN_WIDTH = 65;
   var PIN_MAIN_HEIGHT = 65;
-  var PIN_MAIN_ACTIVE_HEIGHT = 87;
+  var PIN_MAIN_HEIGHT_ACTIVE = 87;
+
   var map = document.querySelector('.map');
   var pinMain = map.querySelector('.map__pin--main'); // метка, являющаяся контролом указания адреса объявления
+  var pins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
   var filters = document.querySelector('.map__filters'); // форма с фильтрами
   var filterList = filters.querySelectorAll('select'); // список фильтров
   var houseTypeField = document.querySelector('#housing-type'); // фильтр: тип жилья
@@ -27,6 +29,9 @@
     });
 
     form.address.value = Math.floor(pinMain.offsetLeft + 0.5 * PIN_MAIN_WIDTH) + ', ' + Math.floor(pinMain.offsetTop + 0.5 * PIN_MAIN_HEIGHT);
+    form.type.value = 'flat';
+    form.type.selectedIndex = 1;
+    form.price.placeholder = '5 000';
     form.rooms.value = '1';
     form.rooms.selectedIndex = 0;
     form.guests.value = '3';
@@ -46,7 +51,10 @@
       element.disabled = false;
     });
 
-    form.address.value = Math.floor(pinMain.offsetLeft + 0.5 * PIN_MAIN_WIDTH) + ', ' + Math.floor(pinMain.offsetTop + PIN_MAIN_ACTIVE_HEIGHT);
+    form.address.value = Math.floor(pinMain.offsetLeft + 0.5 * PIN_MAIN_WIDTH) + ', ' + Math.floor(pinMain.offsetTop + PIN_MAIN_HEIGHT_ACTIVE);
+    form.type.value = 'flat';
+    form.type.selectedIndex = 1;
+    form.price.placeholder = '1 000';
     form.rooms.value = '1';
     form.rooms.selectedIndex = 0;
     form.guests.value = '1';
@@ -54,12 +62,17 @@
 
     /**
      * Обработчик успешной загрузки данных с сервера
-     * @param {Object} data Данные объявлений, полученные с сервера
+     * @param {Array} data Массив с данными объявлений, полученный с сервера
      */
     var successHandler = function (data) {
       advertsData = data;
-      window.renderPins(advertsData);
-      // map.insertBefore(window.renderCard(advertsData[0]), map.querySelector('.map__filters-container'));
+      window.pin.render(advertsData);
+
+      pins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
+
+      for (var i = 0; i < pins.length; i++) {
+        window.card.open(advertsData[i], pins[i]);
+      }
 
       filterList.forEach(function (filter) {
         filter.disabled = false;
@@ -93,34 +106,48 @@
   };
 
   pinMain.addEventListener('mousedown', function (evt) {
-    if (evt.button === LEFT_BUTTON) {
+    pins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
+
+    if (evt.button === LEFT_BUTTON && pins.length === 0) {
       onActiveMode();
     }
   });
 
   pinMain.addEventListener('keydown', function (evt) {
-    if (evt.key === 'Enter') {
+    pins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
+
+    if (evt.key === 'Enter' && pins.length === 0) {
       onActiveMode();
     }
   });
 
   houseTypeField.addEventListener('change', function () {
-    var pins = map.querySelectorAll('.map__pin:not(.map__pin--main)'); // метки с похожими объявлениями на карте
+    pins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
 
     pins.forEach(function (pin) {
       pin.remove();
     });
 
-    var advertsSameHouseType = advertsData.filter(function (advert) {
-      return advert.offer.type === houseTypeField.value;
-    });
+    if (houseTypeField.value !== 'any') {
+      var advertsSameHouseType = advertsData.filter(function (advert) {
+        return advert.offer.type === houseTypeField.value;
+      });
 
-    if (advertsSameHouseType !== []) {
-      window.renderPins(advertsSameHouseType);
-    }
+      if (advertsSameHouseType.length !== 0) {
+        window.pin.render(advertsSameHouseType);
+        pins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
 
-    if (houseTypeField.value === 'any') {
-      window.renderPins(advertsData);
+        for (var i = 0; i < pins.length; i++) {
+          window.card.open(advertsSameHouseType[i], pins[i]);
+        }
+      }
+    } else {
+      window.pin.render(advertsData);
+      pins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
+
+      for (var j = 0; j < pins.length; j++) {
+        window.card.open(advertsData[j], pins[j]);
+      }
     }
   });
 })();

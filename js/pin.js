@@ -3,16 +3,16 @@
 (function () {
   var PIN_WIDTH = 50;
   var PIN_HEIGHT = 70;
-  var MAX_SIMILAR_PIN_COUNT = 5;
+  var PIN_COUNT_MAX_SIMILAR = 5;
   var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   var pinList = document.querySelector('.map__pins'); // блок с метками похожих объявлений на карте
 
   /**
-   * Создаёт метку на карте и заполняет её данными
-   * @param {Array} pinData Объект с данными
-   * @return {Node} pinElement DOM-элемент на основе JS-объекта
+   * Создаёт метку объявления и заполняет её данными
+   * @param {Object} pinData Объект с данными объявлений
+   * @return {Element} pinElement DOM-элемент, соответствующий метке на карте
    */
-  var createPin = function (pinData) {
+  var pinCreate = function (pinData) {
     var pinElement = pinTemplate.cloneNode(true);
 
     pinElement.style.left = pinData.location.x - 0.5 * PIN_WIDTH + 'px';
@@ -22,16 +22,22 @@
     return pinElement;
   };
 
-  window.renderPins = function (data) {
-    var fragment = document.createDocumentFragment();
-    var pinCount = data.length > MAX_SIMILAR_PIN_COUNT ? MAX_SIMILAR_PIN_COUNT : data.length;
+  window.pin = {
+    /**
+     * Отрисовывает созданные метки на карте в заданном количестве
+     * @param {Array} data Массив с данными объявлений
+     */
+    render: function (data) {
+      var fragment = document.createDocumentFragment();
+      var pinCount = data.length > PIN_COUNT_MAX_SIMILAR ? PIN_COUNT_MAX_SIMILAR : data.length;
 
-    for (var i = 0; i < pinCount; i++) {
-      if (data.offer !== '') {
-        fragment.appendChild(createPin(data[i]));
+      for (var i = 0; i < pinCount; i++) {
+        if (data.offer !== '') {
+          fragment.appendChild(pinCreate(data[i]));
+        }
       }
-    }
 
-    pinList.appendChild(fragment);
+      pinList.appendChild(fragment);
+    }
   };
 })();
