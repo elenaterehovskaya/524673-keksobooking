@@ -6,8 +6,8 @@
   var price = form.querySelector('#price'); // поле цены за ночь
   var address = form.querySelector('#address'); // поле адреса
   var type = form.querySelector('#type'); // поле тип жилья
-  var timein = form.querySelector('#timein'); // поле время заезда
-  var timeout = form.querySelector('#timeout'); // поле время выезда
+  var timeIn = form.querySelector('#timein'); // поле время заезда
+  var timeOut = form.querySelector('#timeout'); // поле время выезда
   var rooms = form.querySelector('#room_number'); // поле количества комнат
   var guests = form.querySelector('#capacity'); // поле количества гостей (спальных мест)
 
@@ -18,15 +18,19 @@
     switch (type.value) {
       case 'bungalo':
         price.placeholder = '0';
+        price.min = parseInt(price.placeholder, 10);
         break;
       case 'flat':
-        price.placeholder = '1 000';
+        price.placeholder = '1000';
+        price.min = parseInt(price.placeholder, 10);
         break;
       case 'house':
-        price.placeholder = '5 000';
+        price.placeholder = '5000';
+        price.min = parseInt(price.placeholder, 10);
         break;
       case 'palace':
-        price.placeholder = '10 000';
+        price.placeholder = '10000';
+        price.min = parseInt(price.placeholder, 10);
         break;
     }
   };
@@ -55,41 +59,21 @@
    * Проверяет соответствие поля «Время заезда» полю «Время выезда»
    */
   var checkTimeIn = function () {
-    switch (timein.value) {
-      case '12:00':
-        timeout.selectedIndex = 0;
-        break;
-      case '13:00':
-        timeout.selectedIndex = 1;
-        break;
-      case '14:00':
-        timeout.selectedIndex = 2;
-        break;
-    }
+    timeOut.value = timeIn.value;
   };
 
   /**
    * Проверяет соответствие поля «Время выезда» полю «Время заезда»
    */
   var checkTimeOut = function () {
-    switch (timeout.value) {
-      case '12:00':
-        timein.selectedIndex = 0;
-        break;
-      case '13:00':
-        timein.selectedIndex = 1;
-        break;
-      case '14:00':
-        timein.selectedIndex = 2;
-        break;
-    }
+    timeIn.value = timeOut.value;
   };
 
-  timein.addEventListener('change', function () {
+  timeIn.addEventListener('change', function () {
     checkTimeIn();
   });
 
-  timeout.addEventListener('change', function () {
+  timeOut.addEventListener('change', function () {
     checkTimeOut();
   });
 
