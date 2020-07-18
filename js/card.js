@@ -113,63 +113,13 @@
     return cardElement;
   };
 
-  /**
-   * Отрисовывает созданную карточку объявления
-   * @param {Array} data Массив с данными объявлений
-   */
-  var cardRender = function (data) {
-    map.insertBefore(cardCreate(data), map.querySelector('.map__filters-container'));
-  };
-
-  /**
-   * Удаляет созданную карточку объявления
-   * @param {Element} pin DOM-элемент, соответствующий метке на карте
-   * @param {Element} card Карточка объявления
-   * @param {Element} cardClose Кнопка закрытия
-   */
-  var cardRemove = function (pin, card, cardClose) {
-    cardClose.addEventListener('click', function () {
-      pin.classList.remove('map__pin--active');
-      card.remove();
-    });
-
-    document.addEventListener('keydown', function (evt) {
-      if (evt.key === 'Escape') {
-        evt.preventDefault();
-        pin.classList.remove('map__pin--active');
-        card.remove();
-      }
-    });
-  };
-
   window.card = {
     /**
-     * Открывает созданную карточку объявления на карте
-     * @param {Array} data Массив с данными объявлений
-     * @param {Element} pin DOM-элемент, соответствующий метке на карте
+     * Показывает созданную карточку объявления
+     * @param {Object} data Массив с данными объявлений
      */
-    open: function (data, pin) {
-      pin.addEventListener('click', function () {
-        pin.classList.add('map__pin--active');
-        cardRender(data);
-
-        var card = map.querySelector('.map__card');
-        var cardClose = map.querySelector('.popup__close');
-
-        cardRemove(pin, card, cardClose);
-      });
-
-      pin.addEventListener('keydown', function (evt) {
-        if (evt.key === 'Enter') {
-          pin.classList.add('map__pin--active');
-          cardRender(data);
-
-          var card = map.querySelector('.map__card');
-          var button = map.querySelector('.popup__close');
-
-          cardRemove(pin, card, button);
-        }
-      });
+    show: function (data) {
+      map.insertBefore(cardCreate(data), map.querySelector('.map__filters-container'));
     }
   };
 })();

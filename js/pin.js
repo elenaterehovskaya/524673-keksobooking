@@ -9,16 +9,39 @@
 
   /**
    * Создаёт метку объявления и заполняет её данными
-   * @param {Object} pinData Объект с данными объявлений
-   * @return {Element} pinElement DOM-элемент, соответствующий метке на карте
+   * @param {Object} data Объект с данными объявлений
+   * @return {Node} pinElement DOM-элемент, соответствующий метке на карте
    */
-  var pinCreate = function (pinData) {
+  var pinCreate = function (data) {
     var pinElement = pinTemplate.cloneNode(true);
 
-    pinElement.style.left = pinData.location.x - 0.5 * PIN_WIDTH + 'px';
-    pinElement.style.top = pinData.location.y - PIN_HEIGHT + 'px';
-    pinElement.querySelector('img').src = pinData.author.avatar;
-    pinElement.querySelector('img').alt = pinData.offer.title;
+    pinElement.style.left = data.location.x - 0.5 * PIN_WIDTH + 'px';
+    pinElement.style.top = data.location.y - PIN_HEIGHT + 'px';
+    pinElement.querySelector('img').src = data.author.avatar;
+    pinElement.querySelector('img').alt = data.offer.title;
+
+    pinElement.addEventListener('click', function () {
+      var pinElementActive = document.querySelector('.map__pin--active');
+      var card = document.querySelector('.map__card');
+      var button = document.querySelector('.popup__close');
+
+      if (pinElementActive) {
+        pinElementActive.classList.remove('map__pin--active');
+      }
+
+      if (card) {
+        card.remove();
+      }
+
+      pinElement.classList.add('map__pin--active');
+      window.card.show(data);
+
+      button.addEventListener('click', function () {
+        pinElement.classList.remove('map__pin--active');
+        card.remove();
+      });
+    });
+
     return pinElement;
   };
 
