@@ -3,35 +3,59 @@
 (function () {
   var PIN_WIDTH = 50;
   var PIN_HEIGHT = 70;
-  var MAX_SIMILAR_PIN_COUNT = 5;
+  var PIN_COUNT_MAX_SIMILAR = 5;
   var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   var pinList = document.querySelector('.map__pins'); // блок с метками похожих объявлений на карте
+  var pinActive;
 
   /**
-   * Создаёт метку на карте и заполняет её данными
-   * @param {Array} pinData Объект с данными
-   * @return {Node} pinElement DOM-элемент на основе JS-объекта
+   * Создаёт метку объявления и заполняет её данными
+   * @param {Object} data Объект с данными объявления
+   * @return {Node} pinElement DOM-элемент, соответствующий метке на карте
    */
-  var createPin = function (pinData) {
-    var pinElement = pinTemplate.cloneNode(true);
+  var pinCreate = function (data) {
+    var pin = pinTemplate.cloneNode(true);
 
-    pinElement.style.left = pinData.location.x - 0.5 * PIN_WIDTH + 'px';
-    pinElement.style.top = pinData.location.y - PIN_HEIGHT + 'px';
-    pinElement.querySelector('img').src = pinData.author.avatar;
-    pinElement.querySelector('img').alt = pinData.offer.title;
-    return pinElement;
+    pin.style.left = data.location.x - 0.5 * PIN_WIDTH + 'px';
+    pin.style.top = data.location.y - PIN_HEIGHT + 'px';
+    pin.querySelector('img').src = data.author.avatar;
+    pin.querySelector('img').alt = data.offer.title;
+
+    pin.addEventListener('click', function () {
+      var card = document.querySelector('.map__card');
+
+      if (card) {
+        window.card.close();
+      }
+
+      if (pinActive) {
+        pinActive.classList.remove('map__pin--active');
+      }
+
+      pin.classList.add('map__pin--active');
+      window.card.show(data);
+      pinActive = pin;
+    });
+
+    return pin;
   };
 
-  window.renderPins = function (data) {
-    var fragment = document.createDocumentFragment();
-    var pinCount = data.length > MAX_SIMILAR_PIN_COUNT ? MAX_SIMILAR_PIN_COUNT : data.length;
+  window.pin = {
+    /**
+     * Отрисовывает созданные метки на карте в заданном количестве
+     * @param {Array} data Массив с данными объявлений
+     */
+    render: function (data) {
+      var fragment = document.createDocumentFragment();
+      var pinCount = data.length > PIN_COUNT_MAX_SIMILAR ? PIN_COUNT_MAX_SIMILAR : data.length;
 
-    for (var i = 0; i < pinCount; i++) {
-      if (data.offer !== '') {
-        fragment.appendChild(createPin(data[i]));
+      for (var i = 0; i < pinCount; i++) {
+        if (data.offer !== '') {
+          fragment.appendChild(pinCreate(data[i]));
+        }
       }
-    }
 
-    pinList.appendChild(fragment);
+      pinList.appendChild(fragment);
+    }
   };
 })();
