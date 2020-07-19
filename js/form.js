@@ -18,21 +18,18 @@
     switch (type.value) {
       case 'bungalo':
         price.placeholder = '0';
-        price.min = parseInt(price.placeholder, 10);
         break;
       case 'flat':
         price.placeholder = '1000';
-        price.min = parseInt(price.placeholder, 10);
         break;
       case 'house':
         price.placeholder = '5000';
-        price.min = parseInt(price.placeholder, 10);
         break;
       case 'palace':
         price.placeholder = '10000';
-        price.min = parseInt(price.placeholder, 10);
         break;
     }
+    price.min = parseInt(price.placeholder, 10);
   };
 
   type.addEventListener('change', function () {
