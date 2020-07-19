@@ -9,6 +9,7 @@
   var map = document.querySelector('.map');
   var pinMain = map.querySelector('.map__pin--main'); // метка, являющаяся контролом указания адреса объявления
   var pins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
+  var card = map.querySelector('.map__card');
   var filters = document.querySelector('.map__filters'); // форма с фильтрами
   var filterList = filters.querySelectorAll('select'); // список фильтров
   var houseTypeField = document.querySelector('#housing-type'); // фильтр: тип жилья
@@ -129,12 +130,19 @@
 
   pinMain.addEventListener('keydown', firstEnterHandler);
 
-  // Фильтры
+  /**
+   * Фильтры
+   */
   houseTypeField.addEventListener('change', function () {
     pins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
+    card = map.querySelector('.map__card');
 
-    pins.forEach(function (pin) {
-      pin.remove();
+    if (card) {
+      window.card.close();
+    }
+
+    pins.forEach(function (pinElement) {
+      pinElement.remove();
     });
 
     if (houseTypeField.value !== 'any') {

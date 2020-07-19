@@ -6,43 +6,38 @@
   var PIN_COUNT_MAX_SIMILAR = 5;
   var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   var pinList = document.querySelector('.map__pins'); // блок с метками похожих объявлений на карте
+  var pinActive;
 
   /**
    * Создаёт метку объявления и заполняет её данными
-   * @param {Object} data Объект с данными объявлений
+   * @param {Object} data Объект с данными объявления
    * @return {Node} pinElement DOM-элемент, соответствующий метке на карте
    */
   var pinCreate = function (data) {
-    var pinElement = pinTemplate.cloneNode(true);
+    var pin = pinTemplate.cloneNode(true);
 
-    pinElement.style.left = data.location.x - 0.5 * PIN_WIDTH + 'px';
-    pinElement.style.top = data.location.y - PIN_HEIGHT + 'px';
-    pinElement.querySelector('img').src = data.author.avatar;
-    pinElement.querySelector('img').alt = data.offer.title;
+    pin.style.left = data.location.x - 0.5 * PIN_WIDTH + 'px';
+    pin.style.top = data.location.y - PIN_HEIGHT + 'px';
+    pin.querySelector('img').src = data.author.avatar;
+    pin.querySelector('img').alt = data.offer.title;
 
-    pinElement.addEventListener('click', function () {
-      var pinElementActive = document.querySelector('.map__pin--active');
+    pin.addEventListener('click', function () {
       var card = document.querySelector('.map__card');
-      var button = document.querySelector('.popup__close');
-
-      if (pinElementActive) {
-        pinElementActive.classList.remove('map__pin--active');
-      }
 
       if (card) {
-        card.remove();
+        window.card.close();
       }
 
-      pinElement.classList.add('map__pin--active');
-      window.card.show(data);
+      if (pinActive) {
+        pinActive.classList.remove('map__pin--active');
+      }
 
-      button.addEventListener('click', function () {
-        pinElement.classList.remove('map__pin--active');
-        card.remove();
-      });
+      pin.classList.add('map__pin--active');
+      window.card.show(data);
+      pinActive = pin;
     });
 
-    return pinElement;
+    return pin;
   };
 
   window.pin = {
