@@ -1,11 +1,6 @@
 'use strict';
 
 (function () {
-  var LEFT_BUTTON = 0;
-  var PIN_MAIN_WIDTH = 65;
-  var PIN_MAIN_HEIGHT = 65;
-  var PIN_MAIN_HEIGHT_ACTIVE = 87;
-
   var map = document.querySelector('.map');
   var pinMain = map.querySelector('.map__pin--main'); // метка, являющаяся контролом указания адреса объявления
   var pins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
@@ -13,6 +8,11 @@
   var filters = document.querySelector('.map__filters'); // форма с фильтрами
   var filterList = filters.querySelectorAll('select'); // список фильтров
   var houseTypeField = document.querySelector('#housing-type'); // фильтр: тип жилья
+
+  var startCoords = {
+    x: pinMain.offsetLeft + window.util.PIN_MAIN_WIDTH / 2,
+    y: pinMain.offsetTop + window.util.PIN_MAIN_HEIGHT / 2
+  };
 
   var form = window.form;
   var advertsData = [];
@@ -29,7 +29,7 @@
       element.disabled = true;
     });
 
-    form.address.value = Math.floor(pinMain.offsetLeft + 0.5 * PIN_MAIN_WIDTH) + ', ' + Math.floor(pinMain.offsetTop + 0.5 * PIN_MAIN_HEIGHT);
+    form.address.value = Math.floor(startCoords.x) + ', ' + Math.floor(startCoords.y);
     form.type.value = 'flat';
     form.type.selectedIndex = 1;
     form.price.placeholder = '5000';
@@ -88,7 +88,9 @@
       element.disabled = false;
     });
 
-    form.address.value = Math.floor(pinMain.offsetLeft + 0.5 * PIN_MAIN_WIDTH) + ', ' + Math.floor(pinMain.offsetTop + PIN_MAIN_HEIGHT_ACTIVE);
+    startCoords.y = pinMain.offsetTop + window.util.PIN_MAIN_HEIGHT_ACTIVE;
+
+    form.address.value = Math.floor(startCoords.x) + ', ' + Math.floor(startCoords.y);
     form.type.value = 'flat';
     form.type.selectedIndex = 1;
     form.price.placeholder = '1000';
@@ -100,33 +102,28 @@
 
     // Получает данные с сервера при помощи объекта для работы с HTTP-запросами XMLHttpRequest
     window.load(successHandler, errorHandler);
+
+    pinMain.removeEventListener('mousedown', firstMouseDownHandler);
+    pinMain.removeEventListener('keydown', firstEnterHandler);
   };
 
   /**
-   * Обработчик нажатия левой кнопки мыши
+   * Обработчик нажатия левой кнопки мыши на главной метке
    * @param {Object} evt Объект, описывающий событие, кот. произошло
    */
-  var firstClickHandler = function (evt) {
-    if (evt.button === LEFT_BUTTON) {
-      onActiveMode();
-      pinMain.removeEventListener('mousedown', firstClickHandler);
-      pinMain.removeEventListener('keydown', firstEnterHandler);
-    }
+  var firstMouseDownHandler = function (evt) {
+    window.util.isMouseDownEvent(evt, onActiveMode);
   };
 
   /**
-   * Обработчик нажатия клавиши Enter
+   * Обработчик события нажатия клавиши Enter на главной метке
    * @param {Object} evt Объект, описывающий событие, кот. произошло
    */
   var firstEnterHandler = function (evt) {
-    if (evt.key === 'Enter') {
-      onActiveMode();
-      pinMain.removeEventListener('keydown', firstEnterHandler);
-      pinMain.removeEventListener('mousedown', firstClickHandler);
-    }
+    window.util.isEnterEvent(evt, onActiveMode);
   };
 
-  pinMain.addEventListener('mousedown', firstClickHandler);
+  pinMain.addEventListener('mousedown', firstMouseDownHandler);
 
   pinMain.addEventListener('keydown', firstEnterHandler);
 

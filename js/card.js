@@ -3,8 +3,8 @@
 (function () {
   var map = document.querySelector('.map');
   var cardTemplate = document.querySelector('#card').content.querySelector('.map__card');
-  var card;
-  var button;
+  var card = null;
+  var button = null;
 
   /**
    * Создаёт карточку объявления и заполняет её данными
@@ -115,10 +115,14 @@
     return cardElement;
   };
 
+  /**
+   * Обработчик события нажатия клавиши Esc при открытой карточке объявления
+   * @param {Object} evt Объект, описывающий событие, кот. произошло
+   */
   var cardEscHandler = function (evt) {
     if (evt.key === 'Escape') {
       evt.preventDefault();
-      window.card.close(card);
+      window.card.close();
     }
   };
 
