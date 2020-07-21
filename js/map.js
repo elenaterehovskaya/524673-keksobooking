@@ -12,6 +12,8 @@
   };
 
   pinMain.addEventListener('mousedown', function (evt) {
+    evt.preventDefault();
+
     var startCoords = {
       x: evt.clientX,
       y: evt.clientY
