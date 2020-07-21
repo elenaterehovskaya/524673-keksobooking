@@ -6,7 +6,7 @@
   var PIN_COUNT_MAX_SIMILAR = 5;
   var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   var pinList = document.querySelector('.map__pins'); // блок с метками похожих объявлений на карте
-  var pinActive;
+  var pinActive = null;
 
   /**
    * Создаёт метку объявления и заполняет её данными
