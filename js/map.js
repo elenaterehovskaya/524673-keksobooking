@@ -43,7 +43,7 @@
         pinMainCoords.x = limits.minX;
       }
 
-      if (pinMainCoords.x > limits.maxX + window.util.PIN_MAIN_WIDTH / 2) {
+      if (pinMainCoords.x > limits.maxX - window.util.PIN_MAIN_WIDTH / 2) {
         pinMainCoords.x = limits.maxX;
       }
 
@@ -64,11 +64,11 @@
     var pinMainMouseUpHandler = function (upEvt) {
       upEvt.preventDefault();
 
-      pinMain.removeEventListener('mousemove', pinMainMouseMoveHandler);
-      pinMain.removeEventListener('mouseup', pinMainMouseUpHandler);
+      document.removeEventListener('mousemove', pinMainMouseMoveHandler);
+      document.removeEventListener('mouseup', pinMainMouseUpHandler);
     };
 
-    pinMain.addEventListener('mousemove', pinMainMouseMoveHandler);
-    pinMain.addEventListener('mouseup', pinMainMouseUpHandler);
+    document.addEventListener('mousemove', pinMainMouseMoveHandler);
+    document.addEventListener('mouseup', pinMainMouseUpHandler);
   });
 })();
