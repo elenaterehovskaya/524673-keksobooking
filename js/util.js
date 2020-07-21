@@ -2,18 +2,15 @@
 
 (function () {
   var LEFT_BUTTON = 0;
-  var MIN_WIDTH = 0;
-  var MAX_WIDTH = 1200;
   var PIN_MAIN_WIDTH = 65;
   var PIN_MAIN_HEIGHT = 65;
   var PIN_MAIN_HEIGHT_ACTIVE = 87;
 
   window.util = {
-    MIN_WIDTH: MIN_WIDTH,
-    MAX_WIDTH: MAX_WIDTH,
     PIN_MAIN_WIDTH: PIN_MAIN_WIDTH,
     PIN_MAIN_HEIGHT: PIN_MAIN_HEIGHT,
     PIN_MAIN_HEIGHT_ACTIVE: PIN_MAIN_HEIGHT_ACTIVE,
+
 
     /**
      * Если произошло событие нажатия левой кнопки мыши
