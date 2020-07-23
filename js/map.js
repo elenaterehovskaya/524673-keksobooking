@@ -5,10 +5,10 @@
   var pinMain = map.querySelector('.map__pin--main');
 
   var limits = {
-    minX: 0,
+    minX: 0 - window.util.PIN_MAIN_WIDTH / 2,
     minY: 130,
-    maxX: 1200,
-    maxY: 630
+    maxX: 1200 + window.util.PIN_MAIN_WIDTH / 2,
+    maxY: 630 - window.util.PIN_MAIN_HEIGHT_ACTIVE
   };
 
   pinMain.addEventListener('mousedown', function (evt) {
@@ -39,11 +39,11 @@
         y: pinMain.offsetTop - shift.y
       };
 
-      if (pinMainCoords.x < limits.minX - window.util.PIN_MAIN_WIDTH / 2) {
+      if (pinMainCoords.x < limits.minX) {
         pinMainCoords.x = limits.minX;
       }
 
-      if (pinMainCoords.x > limits.maxX - window.util.PIN_MAIN_WIDTH / 2) {
+      if (pinMainCoords.x > limits.maxX) {
         pinMainCoords.x = limits.maxX;
       }
 
@@ -51,14 +51,14 @@
         pinMainCoords.y = limits.minY;
       }
 
-      if (pinMainCoords.y > limits.maxY - window.util.PIN_MAIN_HEIGHT) {
+      if (pinMainCoords.y > limits.maxY) {
         pinMainCoords.y = limits.maxY;
       }
 
       pinMain.style.left = pinMainCoords.x + 'px';
       pinMain.style.top = pinMainCoords.y + 'px';
 
-      window.form.address.value = Math.floor(pinMain.offsetLeft + 0.5 * window.util.PIN_MAIN_WIDTH) + ', ' + Math.floor(pinMain.offsetTop);
+      window.form.address.value = Math.floor(pinMain.offsetLeft + window.util.PIN_MAIN_WIDTH / 2) + ', ' + Math.floor(pinMain.offsetTop + window.util.PIN_MAIN_HEIGHT_ACTIVE);
     };
 
     var pinMainMouseUpHandler = function (upEvt) {

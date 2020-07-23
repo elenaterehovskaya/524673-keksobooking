@@ -2,15 +2,22 @@
 
 (function () {
   var LEFT_BUTTON = 0;
-  var PIN_MAIN_WIDTH = 65;
-  var PIN_MAIN_HEIGHT = 65;
-  var PIN_MAIN_HEIGHT_ACTIVE = 87;
+  var PIN_MAIN_WIDTH = 62;
+  var PIN_MAIN_HEIGHT = 62;
+  var PIN_MAIN_HEIGHT_ACTIVE = 80;
 
   window.util = {
     PIN_MAIN_WIDTH: PIN_MAIN_WIDTH,
     PIN_MAIN_HEIGHT: PIN_MAIN_HEIGHT,
     PIN_MAIN_HEIGHT_ACTIVE: PIN_MAIN_HEIGHT_ACTIVE,
 
+    /**
+     * Если произошло событие клика
+     * @param {function} action Действие, кот. при этом событии выполняется
+     */
+    isClickEvent: function (action) {
+      action();
+    },
 
     /**
      * Если произошло событие нажатия левой кнопки мыши
@@ -31,6 +38,18 @@
      */
     isEnterEvent: function (evt, action) {
       if (evt.key === 'Enter') {
+        action();
+      }
+    },
+
+    /**
+     * Если произошло событие нажатия клавиши Esc
+     * @param {Object} evt Объект, описывающий событие, кот. произошло
+     * @param {function} action Действие, кот. при этом событии выполняется
+     */
+    isEscEvent: function (evt, action) {
+      if (evt.key === 'Escape') {
+        evt.preventDefault();
         action();
       }
     }

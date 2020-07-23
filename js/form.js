@@ -11,6 +11,8 @@
   var rooms = form.querySelector('#room_number'); // поле количества комнат
   var guests = form.querySelector('#capacity'); // поле количества гостей (спальных мест)
 
+  var formReset = form.querySelector('.ad-form__reset'); // кнопка очистки формы
+
   /**
    * Указывает желательное минимальное значение в поле «Цена за ночь» в зависимости от выбранного типа жилья
    */
@@ -119,6 +121,7 @@
     address: address,
     type: type,
     rooms: rooms,
-    guests: guests
+    guests: guests,
+    formReset: formReset
   };
 })();

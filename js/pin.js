@@ -13,7 +13,7 @@
    * @param {Object} data Объект с данными объявления
    * @return {Node} pinElement DOM-элемент, соответствующий метке на карте
    */
-  var pinCreate = function (data) {
+  var createPin = function (data) {
     var pin = pinTemplate.cloneNode(true);
 
     pin.style.left = data.location.x - 0.5 * PIN_WIDTH + 'px';
@@ -51,7 +51,7 @@
 
       for (var i = 0; i < pinCount; i++) {
         if (data.offer !== '') {
-          fragment.appendChild(pinCreate(data[i]));
+          fragment.appendChild(createPin(data[i]));
         }
       }
 
