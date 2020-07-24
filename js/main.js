@@ -169,6 +169,9 @@
     if (errorMessage) {
       errorMessage.remove();
     }
+
+    document.removeEventListener('click', messageClickHandler);
+    document.removeEventListener('keydown', messageEscHandler);
   };
 
   /**

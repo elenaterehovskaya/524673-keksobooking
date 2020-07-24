@@ -2,6 +2,9 @@
 
 (function () {
   var URL = 'https://javascript.pages.academy/keksobooking';
+  var StatusCode = {
+    OK: 200
+  };
 
   /**
    * Отправляет данные формы на сервер при помощи объекта для работы с HTTP-запросами XMLHttpRequest
@@ -15,8 +18,8 @@
 
     // специальный обработчик события load, который сработает тогда, когда сервер вернёт ответ
     xhr.addEventListener('load', function () {
-      if (xhr.response) {
-        successHandler(); // текст ответа, результат в поле xhr.response
+      if (xhr.status === StatusCode.OK) {
+        successHandler();
       } else {
         errorHandler();
       }
