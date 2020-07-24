@@ -3,40 +3,50 @@
 (function () {
   var map = document.querySelector('.map');
   var pinMain = map.querySelector('.map__pin--main'); // метка, являющаяся контролом указания адреса объявления
-  var pins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
-  var card = map.querySelector('.map__card');
+  var pins = map.querySelectorAll('.map__pin:not(.map__pin--main)'); // метки похожих объявлений на карте
+  var card = map.querySelector('.map__card'); // карточка с данными объявления
+
   var filters = document.querySelector('.map__filters'); // форма с фильтрами
   var filterList = filters.querySelectorAll('select'); // список фильтров
-  var houseTypeField = document.querySelector('#housing-type'); // фильтр: тип жилья
-
-  var startCoords = {
-    x: pinMain.offsetLeft + window.util.PIN_MAIN_WIDTH / 2,
-    y: pinMain.offsetTop + window.util.PIN_MAIN_HEIGHT / 2
-  };
+  var houseTypeField = filters.querySelector('#housing-type'); // фильтр: тип жилья
 
   var form = window.form;
   var advertsData = [];
 
   /**
- * Выключает активный режим, страница находится в неактивном состоянии: отключены форма и карта
- */
+   * Переводит страницу в неактивное состояние (отключены форма и карта), выключает активный режим
+   */
   var offActiveMode = function () {
+    map.classList.add('map--faded');
+    pinMain = map.querySelector('.map__pin--main');
+    pins = map.querySelectorAll('.map__pin:not(.map__pin--main)');
+    card = map.querySelector('.map__card');
+    form.form.classList.add('ad-form--disabled');
+
     filterList.forEach(function (filter) {
       filter.disabled = true;
     });
+
+    form.form.reset();
+    form.setFieldFormActiveOff();
 
     form.elementList.forEach(function (element) {
       element.disabled = true;
     });
 
-    form.address.value = Math.floor(startCoords.x) + ', ' + Math.floor(startCoords.y);
-    form.type.value = 'flat';
-    form.type.selectedIndex = 1;
-    form.price.placeholder = '5000';
-    form.rooms.value = '1';
-    form.rooms.selectedIndex = 0;
-    form.guests.value = '3';
-    form.guests.selectedIndex = 0;
+    if (card) {
+      window.card.close();
+    }
+
+    pins.forEach(function (pinElement) {
+      pinElement.remove();
+    });
+
+    pinMain.style.left = window.util.pinMainStartCoords.x + 'px';
+    pinMain.style.top = window.util.pinMainStartCoords.y + 'px';
+
+    pinMain.addEventListener('mousedown', firstMouseDownHandler);
+    pinMain.addEventListener('keydown', firstEnterHandler);
   };
 
   offActiveMode();
@@ -45,7 +55,7 @@
    * Обработчик успешной загрузки данных с сервера
    * @param {Array} data Массив с данными объявлений, полученный с сервера
    */
-  var successHandler = function (data) {
+  var loadSuccessHandler = function (data) {
     advertsData = data;
     window.pin.render(advertsData);
 
@@ -58,7 +68,7 @@
    * Обработчик ошибки, произошедшей при получении данных с сервера
    * @param {string} errorMessage Текст сообщения
    */
-  var errorHandler = function (errorMessage) {
+  var loadErrorHandler = function (errorMessage) {
     var node = document.createElement('div');
     node.style.zIndex = 100;
     node.style.position = 'absolute';
@@ -88,20 +98,10 @@
       element.disabled = false;
     });
 
-    startCoords.y = pinMain.offsetTop + window.util.PIN_MAIN_HEIGHT_ACTIVE;
-
-    form.address.value = Math.floor(startCoords.x) + ', ' + Math.floor(startCoords.y);
-    form.type.value = 'flat';
-    form.type.selectedIndex = 1;
-    form.price.placeholder = '1000';
-    form.price.min = 1000;
-    form.rooms.value = '1';
-    form.rooms.selectedIndex = 0;
-    form.guests.value = '1';
-    form.guests.selectedIndex = 2;
+    form.setFieldFormActiveOn();
 
     // Получает данные с сервера при помощи объекта для работы с HTTP-запросами XMLHttpRequest
-    window.load(successHandler, errorHandler);
+    window.load(loadSuccessHandler, loadErrorHandler);
 
     pinMain.removeEventListener('mousedown', firstMouseDownHandler);
     pinMain.removeEventListener('keydown', firstEnterHandler);
@@ -124,10 +124,9 @@
   };
 
   pinMain.addEventListener('mousedown', firstMouseDownHandler);
-
   pinMain.addEventListener('keydown', firstEnterHandler);
 
-  /**
+  /*
    * Фильтры
    */
   houseTypeField.addEventListener('change', function () {
@@ -153,5 +152,93 @@
     } else {
       window.pin.render(advertsData);
     }
+  });
+
+  // ---------------------------- Отправка данных формы на сервер ----------------------------
+  /**
+   * Закрывает сообщение, появляющееся после отправки формы
+   */
+  var closeMessage = function () {
+    var successMessage = document.querySelector('.success');
+    var errorMessage = document.querySelector('.error');
+
+    if (successMessage) {
+      successMessage.remove();
+    }
+
+    if (errorMessage) {
+      errorMessage.remove();
+    }
+
+    document.removeEventListener('click', messageClickHandler);
+    document.removeEventListener('keydown', messageEscHandler);
+  };
+
+  /**
+   * Обработчик клика на произвольной области экрана для закрытия сообщения
+   */
+  var messageClickHandler = function () {
+    window.util.isClickEvent(closeMessage);
+  };
+
+  /**
+   * Обработчик нажатия клавиши Esc для закрытия сообщения
+   * @param {Object} evt Объект, описывающий событие, кот. произошло
+   */
+  var messageEscHandler = function (evt) {
+    window.util.isEscEvent(evt, closeMessage);
+  };
+
+  /**
+   * Обработчик успешной отправки данных на сервер
+   */
+  var uploadSuccessHandler = function () {
+    var successTemplate = document.querySelector('#success').content.querySelector('.success');
+    var successMessage = successTemplate.cloneNode(true);
+    var main = document.querySelector('main');
+
+    main.appendChild(successMessage);
+
+    document.addEventListener('click', messageClickHandler);
+    document.addEventListener('keydown', messageEscHandler);
+
+    offActiveMode();
+  };
+
+  /**
+   * Обработчик ошибки, произошедшей при отправки данных на сервер
+   */
+  var uploadErrorHandler = function () {
+    var errorTemplate = document.querySelector('#error').content.querySelector('.error');
+    var errorMessage = errorTemplate.cloneNode(true);
+    var main = document.querySelector('main');
+
+    main.appendChild(errorMessage);
+
+    var errorMessageButton = errorMessage.querySelector('.error__button');
+
+    errorMessageButton.addEventListener('click', messageClickHandler);
+    document.addEventListener('click', messageClickHandler);
+    document.addEventListener('keydown', messageEscHandler);
+
+    offActiveMode();
+  };
+
+  form.form.addEventListener('submit', function (evt) {
+    var formData = new FormData(form.form); // объект, представляющий данные HTML формы
+
+    // Передаёт данные формы на сервер при помощи объекта для работы с HTTP-запросами XMLHttpRequest
+    window.upload(formData, uploadSuccessHandler, uploadErrorHandler);
+    evt.preventDefault(); // чтобы отправка формы не обновила страницу
+  });
+
+  form.resetForm.addEventListener('click', function (evt) {
+    evt.preventDefault();
+
+    form.form.reset();
+    form.setFieldFormActiveOn();
+
+    pinMain.style.left = window.util.pinMainStartCoords.x + 'px';
+    pinMain.style.top = window.util.pinMainStartCoords.y + 'px';
   });
 })();

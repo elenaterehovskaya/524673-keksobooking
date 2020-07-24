@@ -11,7 +11,7 @@
    * @param {Object} data Объект с данными объявления
    * @return {Node} cardElement DOM-элемент, соответствующий карточке объявления
    */
-  var cardCreate = function (data) {
+  var createCard = function (data) {
     var cardElement = cardTemplate.cloneNode(true);
 
     cardElement.querySelector('.popup__avatar').src = data.author.avatar;
@@ -120,10 +120,7 @@
    * @param {Object} evt Объект, описывающий событие, кот. произошло
    */
   var cardEscHandler = function (evt) {
-    if (evt.key === 'Escape') {
-      evt.preventDefault();
-      window.card.close();
-    }
+    window.util.isEscEvent(evt, window.card.close);
   };
 
   window.card = {
@@ -132,7 +129,7 @@
      * @param {Object} data Массив с данными объявлений
      */
     show: function (data) {
-      map.insertBefore(cardCreate(data), map.querySelector('.map__filters-container'));
+      map.insertBefore(createCard(data), map.querySelector('.map__filters-container'));
 
       card = map.querySelector('.map__card');
       button = map.querySelector('.popup__close');
