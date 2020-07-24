@@ -11,7 +11,7 @@
   var rooms = form.querySelector('#room_number'); // поле количества комнат
   var guests = form.querySelector('#capacity'); // поле количества гостей (спальных мест)
 
-  var formReset = form.querySelector('.ad-form__reset'); // кнопка очистки формы
+  var resetForm = form.querySelector('.ad-form__reset'); // кнопка очистки формы
 
   /**
    * Указывает желательное минимальное значение в поле «Цена за ночь» в зависимости от выбранного типа жилья
@@ -31,6 +31,7 @@
         price.placeholder = '10000';
         break;
     }
+
     price.min = parseInt(price.placeholder, 10);
   };
 
@@ -117,11 +118,38 @@
   window.form = {
     form: form,
     elementList: elementList,
-    price: price,
     address: address,
-    type: type,
-    rooms: rooms,
-    guests: guests,
-    formReset: formReset
+    resetForm: resetForm,
+
+    /**
+     * Устанавливает в поля формы значения для неактивного состояния страницы
+     */
+    setFieldFormActiveOff: function () {
+      address.value = Math.floor(window.util.pinMainStartCoords.x + window.util.PIN_MAIN_WIDTH / 2) + ', ' +
+        Math.floor(window.util.pinMainStartCoords.y + window.util.PIN_MAIN_HEIGHT / 2);
+      type.value = 'flat';
+      type.selectedIndex = 1;
+      price.placeholder = '5000';
+      rooms.value = '1';
+      rooms.selectedIndex = 0;
+      guests.value = '3';
+      guests.selectedIndex = 0;
+    },
+
+    /**
+     * Устанавливает в поля формы значения для активного состояния страницы
+     */
+    setFieldFormActiveOn: function () {
+      address.value = Math.floor(window.util.pinMainStartCoords.x + window.util.PIN_MAIN_WIDTH / 2) + ', ' +
+        Math.floor(window.util.pinMainStartCoords.y + window.util.PIN_MAIN_HEIGHT_ACTIVE);
+      type.value = 'flat';
+      type.selectedIndex = 1;
+      price.placeholder = '1000';
+      price.min = 1000;
+      rooms.value = '1';
+      rooms.selectedIndex = 0;
+      guests.value = '1';
+      guests.selectedIndex = 2;
+    }
   };
 })();

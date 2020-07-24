@@ -6,15 +6,20 @@
   /**
    * Отправляет данные формы на сервер при помощи объекта для работы с HTTP-запросами XMLHttpRequest
    * @param {Object} data Объект с данными формы, которые необходимо отправить на сервер
-   * @param {function} uploadHandler Обработчик отправки данных на сервер
+   * @param {function} successHandler Обработчик успешной отправки данных на сервер
+   * @param {function} errorHandler Обработчик ошибки, произошедшей при отправки данных на сервер
    */
-  window.upload = function (data, uploadHandler) {
+  window.upload = function (data, successHandler, errorHandler) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
 
     // специальный обработчик события load, который сработает тогда, когда сервер вернёт ответ
     xhr.addEventListener('load', function () {
-      uploadHandler(xhr.response); // текст ответа, результат в поле xhr.response
+      if (xhr.response) {
+        successHandler(); // текст ответа, результат в поле xhr.response
+      } else {
+        errorHandler();
+      }
     });
 
     xhr.open('POST', URL); // как и куда мы хотим обратиться: тип POST (отправить), URL (куда отправить данные)
